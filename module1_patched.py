@@ -11,6 +11,7 @@ Suno Full Generator — All‑in‑One (OFFLINE)
 from flask import Flask, request, render_template, send_file, Response
 import io, json, random, datetime
 import traceback
+from style_builder import build_style_prompt as run_style_builder
 
 app = Flask(__name__, static_folder="static")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -268,6 +269,17 @@ def _err(e):
 @app.route("/__ping")
 def _ping():
     return "OK :: Flask is serving", 200
+
+@app.route("/build_style", methods=["POST"])
+def build_style_api():
+    data = request.get_json(force=True) or {}
+    tags = data.get("tags") or []
+    if isinstance(tags, list):
+        user_input = ", ".join(tags)
+    else:
+        user_input = str(tags)
+    desc, excl = run_style_builder(user_input)
+    return {"description": desc, "excludes": excl}
 
 @app.route("/", methods=["GET"])
 def index():
