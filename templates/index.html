@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Suno Full Generator — All-in-One</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="header">
+  <h1>Suno Full Generator — All‑in‑One (Offline)</h1>
+  <div class="small">Everything we discussed, in one dark UI. LocalStorage for history, rules, presets. No internet required.</div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs" id="tabs">
+  <div class="tab active" data-tab="gen">1) Hybrid Prompt Generator</div>
+  <div class="tab" data-tab="atlas">2) World Vocal Atlas & Instruments</div>
+  <div class="tab" data-tab="emap">3) Emotion Compatibility Map</div>
+  <div class="tab" data-tab="guide">4) Vocal & Mix Engineering Guide</div>
+  <div class="tab" data-tab="sfx">5) Sound Effects & Textures</div>
+  <div class="tab" data-tab="orch">6) Vocal & Instrument Orchestrator</div>
+  <div class="tab" data-tab="extend">7) EXTEND Section Planner</div>
+  <div class="tab" data-tab="advance">8) Advanced & Secrets</div>
+  <div class="tab" data-tab="vault">9) History / Instant Remix / AI Suggest</div>
+  <div class="tab" data-tab="info">10) INFO • Settings • Mastering</div>
+  <div class="tab" data-tab="tags">11) Tag Browser</div>
+</div>
+
+<!-- 1) GENERATOR -->
+<div class="section active" id="gen">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Hybrid Prompt Generator</h2>
+      <div class="row">
+        <label>Mode</label>
+        <select id="mode" class="input">
+          <option value="random">Random</option>
+          <option value="manual">Manual</option>
+          <option value="batch">Batch</option>
+        </select>
+        <label>Special Emotion Hybrid Preset</label>
+        <select id="preset" class="input">
+          <option value="">(none)</option>
+          <option>Epic + Melancholic</option>
+          <option>Joyful + Haunting</option>
+          <option>Romantic + Aggressive</option>
+          <option>Introspective + Triumphant</option>
+          <option>Mysterious + Uplifting</option>
+        </select>
+      </div>
+      <div id="manualBlock" class="grid col3" style="margin-top:8px;">
+        <div>
+          <label>Emotion</label>
+          <select id="emotion" class="input"></select>
+        </div>
+        <div>
+          <label>Region</label>
+          <select id="region" class="input"></select>
+        </div>
+        <div>
+          <label>Era</label>
+          <select id="era" class="input"></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <label>Count</label><input id="count" type="number" class="input" min="1" max="50" value="1" style="max-width:120px">
+        <label><input type="checkbox" id="extendToggle"> EXTEND mode</label>
+        <button class="btn" id="genBtn">Generate</button>
+        <button class="btn alt" id="gen10">Generate 10 Variations</button>
+      </div>
+      <div style="margin-top:10px" class="note">
+        <b>Auto‑Params</b> — Weirdness, Style Influence, Audio Influence подбираются автоматически; можно изменить вручную ниже.
+      </div>
+      <div class="grid">
+        <div class="slider-row"><div>Weirdness</div><input id="weird" type="range" min="0" max="1" step="0.01"><input id="weirdVal" class="input" style="max-width:60px"></div>
+        <div class="slider-row"><div>Style Influence</div><input id="styleinf" type="range" min="0" max="1" step="0.01"><input id="styleVal" class="input" style="max-width:60px"></div>
+        <div class="slider-row"><div>Audio Influence</div><input id="audioinf" type="range" min="0" max="1" step="0.01"><input id="audioVal" class="input" style="max-width:60px"></div>
+      </div>
+      <div class="grid col2" style="margin-top:10px;">
+        <div>
+          <label>Style Prompt (ready for Suno)</label>
+          <textarea id="styleOut" rows="8" class="input kbd"></textarea>
+          <button class="btn alt" id="copyStyle">Copy</button>
+        </div>
+        <div>
+          <label>Exclude Styles</label>
+          <textarea id="excludeOut" rows="8" class="input kbd"></textarea>
+          <button class="btn alt" id="copyExclude">Copy</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn" id="exportTxt">Export TXT</button>
+        <button class="btn" id="exportJson">Export JSON</button>
+        <button class="btn alt" id="addImpact">+ Add Impact Tags</button>
+      </div>
+      <div id="actionLog" class="box" style="margin-top:10px;">
+        <b>Action Log</b>
+        <div id="logLines" class="small"></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>Impact Tags (click to append)</h3>
+      <div id="impactLists"></div>
+      <hr>
+      <h3>Suggest Mode (AI‑like, offline)</h3>
+      <div class="small">Предлагает 3 альтернативных версии в духе AI Suggest Mode на основе текущих настроек.</div>
+      <button class="btn" id="suggest3">Suggest 3 Alternatives</button>
+      <div id="suggestBox" class="grid"></div>
+      <hr>
+      <h3>Style Clash Detector</h3>
+      <div id="clashResult" class="small"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2) ATLAS & INSTRUMENTS -->
+<div class="section" id="atlas">
+  <div class="grid col2">
+    <div class="box">
+      <h2>World Vocal Atlas</h2>
+      <div id="atlasList"></div>
+    </div>
+    <div class="box">
+      <h2>Instrument Pack</h2>
+      <div id="instList"></div>
+      <hr>
+      <button class="btn alt" id="pushToPrompt">Insert selected into Style Prompt</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3) EMOTION MAP -->
+<div class="section" id="emap">
+  <div class="box">
+    <h2>Emotion Compatibility Map</h2>
+    <div class="small">🟢 0.7–1.0 high • 🟡 0.4–0.69 medium • 🔴 0–0.39 conflict</div>
+    <table class="table" id="emapTable"></table>
+  </div>
+</div>
+
+<!-- 4) ENGINEERING GUIDE -->
+<div class="section" id="guide">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Compact Tags</h2>
+      <div id="compactTags" class="kbd"></div>
+      <button class="btn alt" id="copyCompact">Copy All</button>
+    </div>
+    <div class="box">
+      <h2>Expanded Examples</h2>
+      <div class="note kbd">[CLEAR LEAD VOCAL] — основной вокал чисто читается в миксе. Использовать: баллады, акустика, джаз.</div>
+      <div class="note kbd">[CLARITY IN VOCAL BREATHS] — подчёркнутые вдохи/дыхание для интимности. Lo‑fi, folk, world.</div>
+      <div class="note kbd">[CINEMATIC SPATIAL MIX] — объёмный «кино‑микс». Epic/Score.</div>
+      <div class="note kbd">[DYNAMIC RANGE PRESERVED] — динамика сохранена, трек «дышит».</div>
+      <div class="note kbd">[WIDE STEREO FIELD] — широкая панорама (осторожно с интимными жанрами).</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5) SFX -->
+<div class="section" id="sfx">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Effects & Textures</h2>
+      <div id="sfxLists"></div>
+    </div>
+    <div class="box">
+      <h2>Effect Combos</h2>
+      <div id="comboList"></div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn" id="randomCombo">Random Combo</button>
+        <button class="btn alt" id="clearEffects">Clear Effects</button>
+      </div>
+      <div class="note" style="margin-top:8px;">
+        <b>Prompt Preview</b>
+        <div id="previewBox" class="kbd small"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 6) ORCHESTRATOR -->
+<div class="section" id="orch">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Vocal & Instrument Orchestrator</h2>
+      <div class="grid col3">
+        <div><label>Vocalists</label><input id="vocCount" type="number" class="input" min="1" max="6" value="2"></div>
+        <div><label>Instruments</label><input id="instCount" type="number" class="input" min="1" max="12" value="5"></div>
+        <div><label>Interactions</label><select id="interact" class="input">
+          <option>call & response</option><option>layered harmonies</option><option>overlapping phrases</option></select>
+        </div>
+      </div>
+      <button class="btn" id="calcComplex">Analyze Density</button>
+      <div id="complexBox" style="margin-top:8px"></div>
+      <div class="warnbox small" style="margin-top:8px;">
+        Tips: для дуэтов — добавляй [WIDE STEREO FIELD]. Если много вокалов — избегай жёсткого [CENTERED LEAD VOCAL].
+      </div>
+    </div>
+    <div class="box">
+      <h3>Quick Structure</h3>
+      <div class="kbd small">[Verse: Male lead + acoustic guitar], [Chorus: Male‑Female duet + full band], [Bridge: Solo flute + soft choir]</div>
+      <button class="btn alt" id="orchToPrompt">Insert structure into Style Prompt</button>
+    </div>
+  </div>
+</div>
+
+<!-- 7) EXTEND PLANNER -->
+<div class="section" id="extend">
+  <div class="grid col2">
+    <div class="box">
+      <h2>EXTEND Section Planner</h2>
+      <div class="row">
+        <select id="tpl" class="input" style="max-width:260px">
+          <option value="song">Standard Song</option>
+          <option value="cinema">Cinematic</option>
+          <option value="edm">Electronic</option>
+        </select>
+        <button class="btn" id="loadTpl">Load Template</button>
+        <button class="btn alt" id="addSection">+ Section</button>
+      </div>
+      <div id="sections"></div>
+      <div class="row" style="margin-top:8px;">
+        <button class="btn" id="suggestSections">Suggest Section Tags</button>
+        <button class="btn" id="analyzeSections">Analyze Conflicts</button>
+        <button class="btn alt" id="balanceSections">Balance Meter</button>
+      </div>
+      <div id="sectionReport" class="small" style="margin-top:6px"></div>
+      <button class="btn" style="margin-top:10px" id="buildExtend">Build EXTEND Style</button>
+    </div>
+    <div class="box">
+      <h3>EXTEND Output → Style Prompt</h3>
+      <textarea id="extendOut" rows="14" class="input kbd"></textarea>
+      <button class="btn alt" id="pushExtend">Push to Main Style Prompt</button>
+      <div class="note small" style="margin-top:6px;">
+        EXTEND упорядочит жанр→вокал→инструменты→регион→эффекты→инж. теги и свяжет фразы.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 8) ADVANCED -->
+<div class="section" id="advance">
+  <div class="box">
+    <h2>Advanced Prompting & Secrets (offline)</h2>
+    <ul class="small">
+      <li><b>Prompt Weighting</b>: keywords:weight — напр. <span class="kbd">epic orchestral:1.3, cinematic choir:1.2</span></li>
+      <li><b>Tag Group Lock</b>: «замораживай» блоки (вокал/эффекты), меняя только инструменты → стабильные вариации</li>
+      <li><b>Dynamic Bridge Builder</b>: для конфликтных эмоций добавляй мост: <span class="kbd">in ethereal trip‑hop setting</span></li>
+      <li><b>Sectional Prompting</b>: описывай секции в [] — Suno лучше держит форму</li>
+      <li><b>Rare Tag Explorer</b>: используй редкие теги из Atlas/PRO‑предложений (подсвечиваются как rare)</li>
+    </ul>
+    <div class="note">Встроенные материалы: encoder / style builder / banned list — учтены в логике порядка тегов, исключений и проверок.</div>
+  </div>
+</div>
+
+<!-- 9) HISTORY / REMIX / AI SUGGEST -->
+<div class="section" id="vault">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Prompt History Vault</h2>
+      <div class="small">Сохраняется локально в браузере (localStorage). Можно искать и клонировать.</div>
+      <div class="row">
+        <input id="hSearch" class="input" placeholder="Search in history…">
+        <button class="btn alt" id="hClear">Clear All</button>
+      </div>
+      <div id="historyList" class="small" style="margin-top:8px"></div>
+    </div>
+    <div class="box">
+      <h2>Instant Remix & AI Suggest Mode</h2>
+      <div class="row"><button class="btn" id="remixLight">Instant Remix (light)</button><button class="btn alt" id="remixRad">Instant Remix (radical)</button></div>
+      <div style="margin-top:8px" class="grid" id="aiBox"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 11) TAG BROWSER -->
+  <div class="section" id="tags">
+    <div class="box">
+      <h2>Tag Browser</h2>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <input id="tagSearch" class="input" placeholder="Поиск по тегам…" style="max-width:360px">
+        <span class="pill"><input type="checkbox" id="onlyEnabled"> показать только доступные</span>
+        <span class="pill"><input type="checkbox" id="appendComma" checked> добавлять с запятой</span>
+        <button class="btn alt" id="addSelected">Добавить выбранные в Style</button>
+        <button class="btn alt" id="clearSelected">Очистить выбор</button>
+      </div>
+      <div class="row" style="gap:10px;flex-wrap:wrap;margin-top:8px">
+        <span class="pill">
+          Совместимость ≥ <b id="compatVal">35</b>%
+          <input type="range" id="compatSlider" min="0" max="100" value="35" style="width:180px;margin-left:8px">
+        </span>
+        <span class="pill">
+          Порог «жёсткого конфликта»
+          <select id="hardMode">
+            <option value="auto">auto (по весам)</option>
+            <option value="off">off</option>
+            <option value="strict">strict</option>
+          </select>
+        </span>
+      </div>
+      <div id="tagStats" class="small" style="margin-top:6px"></div>
+    </div>
+
+    <div class="box" style="margin-top:10px">
+      <div id="tagGrid" class="row" style="gap:6px;flex-wrap:wrap"></div>
+      <div id="sentinel"></div>
+    </div>
+
+    <div class="note small">
+      Клик — добавляет тег в Style Prompt. Правый клик — добавляет в Exclude Styles.
+      Конфликтующие с выбранными становятся <b>неактивными</b>.
+    </div>
+  </div>
+
+<!-- 10) INFO / SETTINGS / MASTERING -->
+<div class="section" id="info">
+  <div class="grid col2">
+    <div class="box">
+      <h2>Suno Settings Guide</h2>
+      <ul class="small">
+        <li><b>Weirdness</b> — 0–0.2 предсказуемо; 0.3–0.6 гибриды; 0.7–1.0 эксперимент.</li>
+        <li><b>Style Influence</b> — 0.8–1.0 строго по промпту; 0.5–0.7 баланс; 0.3–0.5 свободно.</li>
+        <li><b>Audio Influence</b> — 0.3–0.5 тонкая подмешка референса; 0.8–1.0 почти копия атмосферы.</li>
+      </ul>
+      <h3>Settings</h3>
+      <label><input type="checkbox" id="strictMode"> Strict Mode (block on errors)</label>
+      <div class="small">По умолчанию выключен.</div>
+    </div>
+    <div class="box">
+      <h2>Mastering Checklist + Genre Presets</h2>
+      <div class="row">
+        <select id="masterPreset" class="input" style="max-width:260px">
+          <option value="">(choose preset)</option>
+          <option>Epic Orchestral</option>
+          <option>Ambient / Chillout</option>
+          <option>Electronic / Synthwave</option>
+          <option>Rock / Metal</option>
+          <option>Lo-fi / Hip-Hop</option>
+        </select>
+        <button class="btn" id="applyMaster">Apply to Style Prompt</button>
+      </div>
+      <div class="grid col2" style="margin-top:8px;">
+        <div class="goodbox small">
+          <b>Pro Mixing Tips</b><br>
+          • Use [VOCALS CUT THROUGH MIX] for dense arrangements.<br>
+          • Prefer [CLARITY IN VOCAL BREATHS] for intimate tracks.<br>
+          • [WIDE STEREO FIELD] for duets/ensembles; avoid over‑widening lo‑fi.<br>
+        </div>
+        <div class="warnbox small">
+          <b>Common Mistakes (editable)</b>
+          <div id="mistakesBox"></div>
+          <div class="row" style="margin-top:6px">
+            <input id="mRule" class="input" placeholder="Rule/Pattern">
+            <input id="mFix" class="input" placeholder="Fix/Advice">
+            <input id="mNote" class="input" placeholder="Comment">
+            <button class="btn alt" id="mAdd">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+</div>
+
+<script id="app-data" type="application/json">{{ data|tojson }}</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
