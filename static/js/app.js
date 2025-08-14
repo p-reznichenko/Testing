@@ -285,12 +285,20 @@ document.getElementById("balanceSections").onclick=()=>{
   document.getElementById("sectionReport").textContent=msg.trim();
 };
 
-document.getElementById("buildExtend").onclick=()=>{
+document.getElementById("buildExtend").onclick=async()=>{
   const S=gatherSections();
   if(!S.length){ document.getElementById("extendOut").value=""; return; }
-  const parts = S.map(s=>`[${s.emo} — ${s.voc}; instruments: ${s.inst}; fx: ${s.fx}; eng: ${s.eng}]`);
-  const text = "Extended cinematic narrative: " + parts.join(" ").replace(/\s+/g," ").trim();
-  document.getElementById("extendOut").value=text;
+  const tags=[];
+  S.forEach(s=>{
+    [s.emo,s.voc,s.inst,s.fx,s.eng].forEach(v=>{
+      if(v){ v.split(",").map(x=>x.trim()).filter(Boolean).forEach(t=>tags.push(t)); }
+    });
+  });
+  const res = await fetch("/build_style", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({tags})});
+  const data = await res.json();
+  document.getElementById("styleOut").value = data.description || "";
+  document.getElementById("excludeOut").value = (data.excludes || []).join(", ");
+  document.getElementById("extendOut").value = data.description || "";
   log("EXTEND style built from sections");
 };
 document.getElementById("pushExtend").onclick=()=>{
