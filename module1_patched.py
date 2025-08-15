@@ -292,28 +292,28 @@ def lyrics_api():
 
 @app.route("/", methods=["GET"])
 def index():
-    data = {
-        "emotions": CORE_EMOTIONS,
-        "emap": EMOTION_MAP,
-        "regions": WORLD_REGIONS,
-        "eras": ERAS,
-        "conflicts": HIGH_CONFLICTS,
-        "impact": SONG_IMPACT_TAGS,
-        "sfx": SFX,
-        "combos": SFX_COMBOS,
-        "ecompat": EMOTION_COMPAT,
-        "mpresets": MASTERING_PRESETS,
-        "mistakes": COMMON_MISTAKES,
-        "all_tags": ALL_TAGS,
-        "co_weights": CO_CLIENT,
-        "instruments": sorted(INSTRUMENT_TAGS),
-        "DEFAULT_STYLE_TAGS": DEFAULT_STYLE_TAGS,
+    """Serve the main page with all static datasets used by the frontend."""
+
+    ctx = {
+        "emotions": CORE_EMOTIONS,  # list of core emotions
+        "emotion_map": EMOTION_MAP,  # mapping: emotion -> (vocals, genres)
+        "world_regions": WORLD_REGIONS,  # regional vocal tags
+        "eras": ERAS,  # available production eras
+        "conflict_pairs": HIGH_CONFLICTS,  # incompatible vocal style pairs
+        "impact_tags": SONG_IMPACT_TAGS,  # vocal & mix impact tags
+        "sound_effects": SFX,  # available sound effect tags
+        "sfx_combos": SFX_COMBOS,  # curated sound effect combinations
+        "emotion_compatibility": EMOTION_COMPAT,  # emotion compatibility matrix
+        "mastering_presets": MASTERING_PRESETS,  # mastering suggestions
+        "common_mistakes": COMMON_MISTAKES,  # frequent user mistakes
+        "instruments": sorted(INSTRUMENT_TAGS),  # instrument tag list
+        "default_style_tags": DEFAULT_STYLE_TAGS,  # baseline style tags
     }
-    for k, v in data.items():
-        _assert_jsonable(k, v)
+    for key, value in ctx.items():
+        _assert_jsonable(key, value)
 
     print(f"[INDEX] tags={len(ALL_TAGS)} styles={len(DEFAULT_STYLE_TAGS)}")
-    return render_template("index.html", data=data)
+    return render_template("index.html", data=ctx)
 
 # ---------- MAIN ----------
 if __name__ == "__main__":
