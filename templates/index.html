@@ -25,6 +25,7 @@
   <div class="tab" data-tab="vault">9) History / Instant Remix / AI Suggest</div>
   <div class="tab" data-tab="info">10) INFO • Settings • Mastering</div>
   <div class="tab" data-tab="tags">11) Tag Browser</div>
+  <div class="tab" data-tab="lyrics">12) Lyricist</div>
 </div>
 
 <!-- 1) GENERATOR -->
@@ -363,8 +364,20 @@
     </div>
   </div>
 
-  
 
+
+</div>
+
+<!-- 12) LYRICIST -->
+<div class="section" id="lyrics">
+  <div class="box">
+    <h2>Lyric Generator</h2>
+    <textarea id="lyricIdea" class="input" rows="4" placeholder="Describe your idea..."></textarea>
+    <div class="row" style="margin-top:8px;">
+      <button class="btn" id="genLyrics">Generate Lyrics</button>
+    </div>
+    <pre id="lyricResult" class="box" style="margin-top:10px;white-space:pre-wrap;"></pre>
+  </div>
 </div>
 
 <script id="app-data" type="application/json">{{ data|tojson }}</script>

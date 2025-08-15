@@ -772,3 +772,18 @@ const oldlog = localStorage.getItem("ACTION_LOG"); if(oldlog) document.getElemen
   fullRecompute();
 })();
 
+// ---------- Lyric generator ----------
+const lyrBtn = document.getElementById("genLyrics");
+if (lyrBtn) {
+  lyrBtn.onclick = async () => {
+    const idea = document.getElementById("lyricIdea").value;
+    const res = await fetch("/lyrics", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({idea})
+    });
+    const data = await res.json();
+    document.getElementById("lyricResult").textContent = data.lyrics || "";
+  };
+}
+

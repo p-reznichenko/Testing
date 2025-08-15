@@ -52,4 +52,57 @@ def sanitize_lyrics(text: str, replacements: Dict[str, str] | None = None) -> st
     return pattern.sub(_sub, text)
 
 
-__all__ = ["sanitize_lyrics"]
+def generate_lyrics(idea: str) -> str:
+    """Generate a small, structured lyric from a user idea.
+
+    The function applies :func:`sanitize_lyrics` to both the incoming idea and
+    the final result so that banned words from ``banned_words.json`` are
+    filtered consistently.
+    """
+
+    idea_clean = sanitize_lyrics(idea or "").strip()
+    if not idea_clean:
+        idea_clean = "love"
+
+    def line(txt: str) -> str:
+        return sanitize_lyrics(txt)
+
+    verse1 = [
+        line(f"{idea_clean} found me at dawn's first light,"),
+        line("It traced my days and steered them right,"),
+        line("Across old roads where memories play,"),
+        line("Each step a verse along the way."),
+    ]
+
+    chorus = [
+        line(f"Hold the {idea_clean} close tonight,"),
+        line("Let it set the stars alight,"),
+        line("Through every wind and pouring rain,"),
+        line("The heart repeats that one old line."),
+    ]
+
+    verse2 = [
+        line("Years may flow but feelings stay,"),
+        line("In quiet corners they find their way,"),
+        line("From distant hills to open sea,"),
+        line(f"Your {idea_clean} truth still shelters me."),
+    ]
+
+    bridge = [
+        line("If night grows cold and hopes seem far,"),
+        line(f"Your {idea_clean} spark becomes my star."),
+    ]
+
+    parts = [
+        "Verse 1:", *verse1, "",
+        "Chorus:", *chorus, "",
+        "Verse 2:", *verse2, "",
+        "Bridge:", *bridge, "",
+        "Chorus:", *chorus,
+    ]
+
+    final = "\n".join(parts)
+    return sanitize_lyrics(final)
+
+
+__all__ = ["sanitize_lyrics", "generate_lyrics"]

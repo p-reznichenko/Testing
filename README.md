@@ -23,7 +23,7 @@ Then visit [http://127.0.0.1:5000](http://127.0.0.1:5000).
 - **Hybrid Prompt Generator** – Mixes emotions, instruments, regions, and sound‑effects to build Suno prompts with minimal typing.
 - **World Vocal Atlas** – Maps regions to characteristic vocal techniques, allowing quick exploration of global singing styles.
 - **Style Builder** – Normalizes style tags and augments them with co‑occurrence weights to produce a four‑sentence description and an "Exclude Styles" list.
-- **Lyricist** – Transforms raw ideas into polished, timeless lyrics while automatically filtering banned terms.
+- **Lyricist** – `/lyrics` endpoint and web panel transform raw ideas into polished, timeless lyrics while automatically filtering banned terms.
 
 ## Offline Datasets
 
