@@ -1,23 +1,23 @@
 // ---------- datasets from server ----------
 const DATA = JSON.parse(document.getElementById('app-data').textContent);
 const CORE_EMOTIONS = DATA.emotions;
-const EMOTION_MAP = DATA.emap;
-const WORLD_REGIONS = DATA.regions;
+const EMOTION_MAP = DATA.emotion_map;
+const WORLD_REGIONS = DATA.world_regions;
 const INSTRUMENT_TAGS = DATA.instruments;
 const ERAS = DATA.eras;
-const HIGH_CONFLICTS = DATA.conflicts;
-const SONG_IMPACT_TAGS = DATA.impact;
-const SFX = DATA.sfx;
-const SFX_COMBOS = DATA.combos;
-const EMOTION_COMPAT = DATA.ecompat;
-const MASTERING_PRESETS = DATA.mpresets;
-let COMMON_MISTAKES = JSON.parse(localStorage.getItem("COMMON_MISTAKES")||"null") || DATA.mistakes;
-const ALL_TAGS = DATA.all_tags || [];
+const HIGH_CONFLICTS = DATA.conflict_pairs;
+const SONG_IMPACT_TAGS = DATA.impact_tags;
+const SFX = DATA.sound_effects;
+const SFX_COMBOS = DATA.sfx_combos;
+const EMOTION_COMPAT = DATA.emotion_compatibility;
+const MASTERING_PRESETS = DATA.mastering_presets;
+let COMMON_MISTAKES = JSON.parse(localStorage.getItem("COMMON_MISTAKES")||"null") || DATA.common_mistakes;
 const CO = DATA.co_weights || {};
 const REGION_TAGS = Object.values(WORLD_REGIONS||{}).flat();
 const SFX_TAGS = Object.values(SFX||{}).flat();
 const ENGINEERING_TAGS = Object.values(SONG_IMPACT_TAGS||{}).flat();
-const DEFAULT_STYLE_TAGS = DATA.DEFAULT_STYLE_TAGS;
+const DEFAULT_STYLE_TAGS = DATA.default_style_tags;
+const ALL_TAGS = [...new Set([...DEFAULT_STYLE_TAGS, ...INSTRUMENT_TAGS, ...REGION_TAGS, ...SFX_TAGS, ...ENGINEERING_TAGS])].sort();
 
 
 // ---------- tabs ----------
