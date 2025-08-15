@@ -12,6 +12,7 @@ from flask import Flask, request, render_template, send_file, Response
 import io, json, random, datetime
 import traceback
 from style_builder import build_style_prompt as run_style_builder
+from lyrics import generate_lyrics
 
 app = Flask(__name__, static_folder="static")
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -280,6 +281,14 @@ def build_style_api():
         user_input = str(tags)
     desc, excl = run_style_builder(user_input)
     return {"description": desc, "excludes": excl}
+
+
+@app.route("/lyrics", methods=["POST"])
+def lyrics_api():
+    data = request.get_json(force=True) or {}
+    idea = data.get("idea", "")
+    text = generate_lyrics(idea)
+    return {"lyrics": text}
 
 @app.route("/", methods=["GET"])
 def index():
