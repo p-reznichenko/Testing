@@ -41,3 +41,7 @@ def test_lyrics_endpoint_returns_json():
     low = data["lyrics"].lower()
     assert "ancient" not in low
     assert "harmony" not in low
+
+def test_sanitize_leaves_clean_text_unchanged():
+    clean = "plain words"
+    assert sanitize_lyrics(clean) == clean
