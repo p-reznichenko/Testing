@@ -17,3 +17,11 @@ def test_choose_excludes_from_gravity_map():
     sb = StyleBuilder(defaults, co)
     excludes = sb.choose_excludes(["rock", "metal"], [])
     assert "pop" in excludes
+
+def test_build_generates_description_and_excludes():
+    defaults = ["rock", "metal", "pop"]
+    co = {"rock": {"metal": 0.9, "pop": 0.8}, "metal": {"pop": 0.7}}
+    sb = StyleBuilder(defaults, co)
+    desc, excludes = sb.build("rock, no pop")
+    assert "rock" in desc
+    assert "pop" in excludes

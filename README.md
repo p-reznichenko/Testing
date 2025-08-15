@@ -34,3 +34,12 @@ The application ships with JSON datasets so it can operate completely offline:
 
 These files are loaded at runtime to populate suggestions and guide the Style Builder, allowing the entire workflow to function without internet access.
 
+
+## Testing
+
+Install the test dependencies and run the suite from the project root:
+
+```bash
+pip install pytest
+pytest
+```
