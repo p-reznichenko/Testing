@@ -1,24 +1,60 @@
 import React, { useState } from 'react';
+import WordInfo, { SelectedWordInfo } from './WordInfo';
 
-// Fetch synonyms or meanings for a given word using the Datamuse API.
-// Returns an array of related words or an empty array on failure.
-export const fetchWordInfo = async (word: string): Promise<string[]> => {
+// Fetch synonyms and additional info for a given word using the Datamuse API.
+// Returns an object with word details or null on failure.
+export const fetchWordInfo = async (
+  word: string
+): Promise<SelectedWordInfo | null> => {
   try {
-    const response = await fetch(`https://api.datamuse.com/words?ml=${word}`);
-    if (!response.ok) {
+    const [synRes, detailRes] = await Promise.all([
+      fetch(`https://api.datamuse.com/words?ml=${word}`),
+      fetch(`https://api.datamuse.com/words?sp=${word}&md=d,p&max=1`),
+    ]);
+
+    if (!synRes.ok || !detailRes.ok) {
       throw new Error('Network response was not ok');
     }
-    const data = await response.json();
-    return data.map((item: { word: string }) => item.word);
+
+    const synonymsData = await synRes.json();
+    const detailsData = await detailRes.json();
+
+    const synonyms = synonymsData.map((item: { word: string }) => item.word);
+
+    let partOfSpeech: string | undefined;
+    let examples: string[] = [];
+
+    if (detailsData.length > 0) {
+      const details = detailsData[0];
+      if (details.tags) {
+        const posTag = details.tags.find((tag: string) =>
+          ['n', 'v', 'adj', 'adv'].includes(tag)
+        );
+        const map: Record<string, string> = {
+          n: 'noun',
+          v: 'verb',
+          adj: 'adjective',
+          adv: 'adverb',
+        };
+        partOfSpeech = posTag ? map[posTag] || posTag : undefined;
+      }
+
+      if (details.defs) {
+        examples = details.defs.map((def: string) => def.split('\t')[1]);
+      }
+    }
+
+    return { word, synonyms, partOfSpeech, examples };
   } catch (err) {
     console.error('Failed to fetch word info:', err);
-    return [];
+    return null;
   }
 };
 
 const LyricsEditor: React.FC = () => {
   const [lyrics, setLyrics] = useState('');
-  const [selectedWordInfo, setSelectedWordInfo] = useState<string[]>([]);
+  const [selectedWordInfo, setSelectedWordInfo] =
+    useState<SelectedWordInfo | null>(null);
 
   const handleCopy = async () => {
     try {
@@ -42,7 +78,7 @@ const LyricsEditor: React.FC = () => {
       const info = await fetchWordInfo(selected);
       setSelectedWordInfo(info);
     } else {
-      setSelectedWordInfo([]);
+      setSelectedWordInfo(null);
     }
   };
 
@@ -59,13 +95,7 @@ const LyricsEditor: React.FC = () => {
         <button onClick={handleCopy}>Copy</button>
         <button onClick={handleClear} style={{ marginLeft: '4px' }}>Clear</button>
       </div>
-      {selectedWordInfo.length > 0 && (
-        <ul>
-          {selectedWordInfo.map((word, index) => (
-            <li key={index}>{word}</li>
-          ))}
-        </ul>
-      )}
+      {selectedWordInfo && <WordInfo selectedWordInfo={selectedWordInfo} />}
     </div>
   );
 };
